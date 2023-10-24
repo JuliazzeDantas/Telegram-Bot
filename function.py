@@ -51,9 +51,9 @@ def get_message(message_received):
 
 
 def get_chat_id(message_received):
-    try:
+    if ('message' in message_received):
         return message_received['message']['chat']['id']
-    except KeyError:
+    elif ('edited_message' in message_received):
         return message_received['edited_message']['chat']['id']
 
 
@@ -65,6 +65,7 @@ def get_message_id(message_received):
 
 
 def get_callback_query(message_received):
+    print("Callback query enviado")
     return message_received['callback_query']['data']
 
 
@@ -90,17 +91,35 @@ def reply_message(url, message_received, message_sent):
     requests.post(url + '/sendMessage', data)
 
 
-def verify_commands(message):
-    text = get_message(message)
-    if text[0] == '/':
-        print("Comando detectado")
+def verify_message(message_received):
+    if ('message' in message_received) or ('edited_message' in message_received):
         return True
     else:
-        print("Texto comum")
+        return False
+
+
+def verify_command(message_received):
+    if ('message' in message_received):
+        if 'entities' in message_received['message']:
+            return True
+        else:
+            return False
+    elif ('edited_message' in message_received):
+        if 'entities' in message_received['edited_message']:
+            return True
+        else:
+            return False
+
+    
+def verify_callback_query(message_received):
+    if 'callback_query' in message_received:
+        return True
+    else:
         return False
 
 
 def use_commands(url, command):
+    print("Comando detectado")
     list_command = menuButton.list_of_command
 
     if get_message(command) == list_command[0]:
@@ -136,36 +155,3 @@ def use_commands(url, command):
         print("função não implementada")
         chat_id= get_chat_id(command)
         #print(create_inline_keyboard('', chat_id, 'Escolha uma das opções de produto para cadastrar'))
-
-
-def use_text(message):
-    print("TEXT: " + get_message(message))
-
-
-def get_updates(url, offset):
-    data = requests.get(url + '/getUpdates', params={'offset': offset + 1})
-    updates = data.json()
-    for update in updates['result']:
-        print("---------Novo update---------")
-        if verify_commands(update) ==True:
-            use_commands(url, update)
-        else:
-            use_text
-        print('\n')
-
-
-        '''try:
-            if get_message(update):
-                print(get_message(update))
-        except KeyError or NameError:
-            print("Esse Update não tem uma mensagem")
-        try:
-            if get_callback_query(update):
-                print(get_callback_query(update))
-        except KeyError or NameError:
-            print("Esse Update não tem uma callback query")
-        print("------------------------------------")'''
-
-        offset = update['update_id'] #Apaga os updates consumidos
-
-    return offset
