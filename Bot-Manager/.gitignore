@@ -1,4 +1,4 @@
 token_telegram.py
-.gitgnore
-__pycache/.
+__pycache__
+
 

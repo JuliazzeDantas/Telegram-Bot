@@ -133,7 +133,8 @@ def use_commands(url, command):
         print(create_inline_keyboard(url, comun_list, chat_id, 'Escolha uma das opções de produto para cadastrar'))
 
     if get_text(command) == list_command[2]:
-        gourmet_list= get_chat_id(command)
+        gourmet_list = inlineKeyboard.gourmet_product
+        chat_id= get_chat_id(command)
         print(create_inline_keyboard(url, gourmet_list, chat_id, 'Escolha uma das opções de produto para cadastrar'))
 
     if get_text(command) == list_command[3]:
