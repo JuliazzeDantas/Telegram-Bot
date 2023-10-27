@@ -43,25 +43,33 @@ def create_inline_keyboard(url, buttons, chat_id, text):
         return False
 
 
-def get_message(message_received):
-    try:
-        return message_received['message']['text']
-    except KeyError:
-        return message_received['edited_message']['text']
+def get_type_of_message(function):
+    def verify_edited(message):
+        if 'edited_message' in message:
+            return function(message['edited_message'])
+        elif 'message' in message:
+            return function(message['message'])
+        elif 'callback_query' in message:
+            return function(message['callback_query']['message'])
+        else:
+            print("ERRO - Tipo de mensagem não esperada")
+            return function(message)
+    return verify_edited
 
 
+@get_type_of_message
+def get_text(message_received):
+    return message_received['text']
+
+
+@get_type_of_message
 def get_chat_id(message_received):
-    if ('message' in message_received):
-        return message_received['message']['chat']['id']
-    elif ('edited_message' in message_received):
-        return message_received['edited_message']['chat']['id']
+    return message_received['chat']['id']
 
 
+@get_type_of_message
 def get_message_id(message_received):
-    try:
-        return message_received['message']['message_id']
-    except KeyError:
-        return message_received['edited_message']['message_id']
+    return message_received['message_id']
 
 
 def get_callback_query(message_received):
@@ -69,22 +77,19 @@ def get_callback_query(message_received):
     return message_received['callback_query']['data']
 
 
-def send_message(url, message_received, message_sent):
+def send_message(url, chat_id, message_sent):
     data = {
-        'chat_id': get_chat_id(message_received), 
+        'chat_id': chat_id, 
         'text': message_sent
     }
 
     requests.post(url + '/sendMessage', data)
 
 
-def reply_message(url, message_received, message_sent):
-
-    print("/////////////////////////////////////////")
-    print(message_received)
+def reply_message(url, message_received, message_sent, chat_id, message_id):
     data = {
-        'chat_id': get_chat_id(message_received), 
-        "reply_to_message_id" : get_message_id(message_received),
+        'chat_id': chat_id, 
+        "reply_to_message_id" : message_id,
         'text' : message_sent
     }
 
@@ -98,19 +103,6 @@ def verify_message(message_received):
         return False
 
 
-def verify_command(message_received):
-    if ('message' in message_received):
-        if 'entities' in message_received['message']:
-            return True
-        else:
-            return False
-    elif ('edited_message' in message_received):
-        if 'entities' in message_received['edited_message']:
-            return True
-        else:
-            return False
-
-    
 def verify_callback_query(message_received):
     if 'callback_query' in message_received:
         return True
@@ -118,40 +110,51 @@ def verify_callback_query(message_received):
         return False
 
 
-def use_commands(url, command):
-    print("Comando detectado")
-    list_command = menuButton.list_of_command
+@get_type_of_message
+def verify_command(message_received):
+    if 'entities' in message_received:
+        return True
+    else:
+        return False
 
-    if get_message(command) == list_command[0]:
-        send_message(url, command, "Esse Bot irá auxiliá-lo a gerir as contas da empresa. Farei isso salvando todas as mercadorias que você compra!\n\n\
+
+def use_commands(url, command):
+    
+    list_command = menuButton.list_of_command
+    print(f"Comando detectado")
+
+    if get_text(command) == list_command[0]:
+        send_message(url, get_chat_id(command), "Esse Bot irá auxiliá-lo a gerir as contas da empresa. Farei isso salvando todas as mercadorias que você compra!\n\n\
                      Ao escolher um dos grupos de produtos, aparecerá em sua tela várias opções de produtos. Escolha um deles e depois digite o preço e a quantidade comprada.")
         
-    if get_message(command) == list_command[1]:
+    if get_text(command) == list_command[1]:
         comun_list = inlineKeyboard.comun_product
         chat_id= get_chat_id(command)
         print(create_inline_keyboard(url, comun_list, chat_id, 'Escolha uma das opções de produto para cadastrar'))
 
-    if get_message(command) == list_command[2]:
-        gourmet_list = inlineKeyboard.gourmet_product
-        chat_id= get_chat_id(command)
+    if get_text(command) == list_command[2]:
+        gourmet_list= get_chat_id(command)
         print(create_inline_keyboard(url, gourmet_list, chat_id, 'Escolha uma das opções de produto para cadastrar'))
 
-    if get_message(command) == list_command[3]:
+    if get_text(command) == list_command[3]:
         drinks_list = inlineKeyboard.drink_product
         chat_id= get_chat_id(command)
         print(create_inline_keyboard(url, drinks_list, chat_id, 'Escolha uma das opções de produto para cadastrar'))
 
-    if get_message(command) == list_command[4]:
+    if get_text(command) == list_command[4]:
         pizza_dough_list = inlineKeyboard.pizza_dough_list
         chat_id= get_chat_id(command)
         print(create_inline_keyboard(url, pizza_dough_list, chat_id, 'Escolha uma das opções de produto para cadastrar'))
         
-    if get_message(command) == list_command[5]:
+    if get_text(command) == list_command[5]:
         structure_list = inlineKeyboard.structure_list
         chat_id= get_chat_id(command)
         print(create_inline_keyboard(url, structure_list, chat_id, 'Escolha uma das opções de produto para cadastrar'))
 
-    if get_message(command) == list_command[6]:
+    if get_text(command) == list_command[6]:
         print("função não implementada")
         chat_id= get_chat_id(command)
+    
+    print("Comando executado")
         #print(create_inline_keyboard('', chat_id, 'Escolha uma das opções de produto para cadastrar'))
+
