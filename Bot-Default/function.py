@@ -187,12 +187,3 @@ def forward_message(url, chat_id, from_chat_id, message_id, text):
     response = requests.post(url + '/forwardMessage', data)
     return response.status_code
 
-
-
-
-data = requests.get('https://api.telegram.org/bot6827779420:AAEDNCElxoBCLdkF8mBC2U5DtO5enpDZd8U' + '/getUpdates')
-updates = data.json()
-print(updates)
-for update in updates['result']:
-    print("OK")
-    print(get_photo_id(update))

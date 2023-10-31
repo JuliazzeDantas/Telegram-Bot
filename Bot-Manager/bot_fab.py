@@ -44,7 +44,7 @@ def save_product(url, update):
             function.send_message(url, function.get_chat_id(update), f'Produto Salvo: {quantity} unidades de {product} por {price:.2f}')
             print("Produto salvo")
         else:
-            function.send_message(url, function.get_chat_id(update), 'Formato invalido! Digite o texto na forma: Quantidade Preço')    
+            function.send_message(url, function.get_chat_id(update), 'Formato invalido! Digite o texto na forma: "Quantidade" "Preço"')    
     else:
         function.send_message(url, function.get_chat_id(update), 'Envie uma mesnagem comum com o formato requisitado anteriormente')
 

@@ -124,8 +124,7 @@ def use_commands(url, command):
     print(f"Comando detectado")
 
     if get_text(command) == list_command[0]:
-        send_message(url, get_chat_id(command), "Esse Bot irá auxiliá-lo a gerir as contas da empresa. Farei isso salvando todas as mercadorias que você compra!\n\n\
-                     Ao escolher um dos grupos de produtos, aparecerá em sua tela várias opções de produtos. Escolha um deles e depois digite o preço e a quantidade comprada.")
+        send_message(url, get_chat_id(command), ' Esse Bot irá auxiliá-lo a gerir as contas da empresa. Farei isso salvando todas as mercadorias que você compra!\n\n\ Clique no botão azul "Menu" e escolha uma das categorias. Depois disso, aparecerá em sua tela várias opções de produtos. Escolha um deles e digite o preço e a quantidade comprada.')
         
     if get_text(command) == list_command[1]:
         comun_list = inlineKeyboard.comun_product
